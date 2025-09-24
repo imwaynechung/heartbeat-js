@@ -1,4 +1,3 @@
-```javascript
 import React from 'react';
 import HeartbeatMonitor from './components/HeartbeatMonitor.jsx';
 
@@ -27,6 +26,3 @@ function App() {
     </div>
   );
 }
-
-export default App;
-```

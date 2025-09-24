@@ -1,4 +1,3 @@
-```javascript
 const OPENCV_URI = "https://docs.opencv.org/master/opencv.js";
 
 // Load opencv when needed
@@ -23,5 +22,3 @@ export async function loadOpenCv(uri) {
     var firstScriptTag = document.getElementsByTagName('script')[0];
     firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
   });
-}
-```

@@ -1,4 +1,3 @@
-```javascript
 import React, { useRef, useEffect, useState } from 'react';
 import { Heartbeat } from '../heartbeat.js';
 import { loadOpenCv } from '../utils/opencvLoader.js';
@@ -138,6 +137,3 @@ function HeartbeatMonitor() {
     </div>
   );
 }
-
-export default HeartbeatMonitor;
-```
