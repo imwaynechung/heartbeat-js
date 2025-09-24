@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Heartbeat } from '../heartbeat.js';
+import { Heartbeat } from '../../heartbeat.js';
 import { loadOpenCv } from '../utils/opencvLoader.js';
 
 const HAARCASCADE_URI = "haarcascade_frontalface_alt.xml";
