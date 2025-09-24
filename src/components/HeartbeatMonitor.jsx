@@ -54,29 +54,29 @@ function HeartbeatMonitor() {
     };
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
-        <p className="text-gray-600 text-lg">Loading OpenCV and initializing webcam...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="max-w-md mx-auto bg-red-50 border border-red-200 rounded-lg p-6">
-        <div className="flex items-center mb-3">
-          <div className="text-red-500 text-xl mr-3">⚠️</div>
-          <h3 className="text-red-800 font-semibold">Error</h3>
-        </div>
-        <p className="text-red-700">{error}</p>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col items-center">
+      {/* Loading overlay */}
+      {loading && (
+        <div className="fixed inset-0 bg-white bg-opacity-90 flex flex-col items-center justify-center z-50">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
+          <p className="text-gray-600 text-lg">Loading OpenCV and initializing webcam...</p>
+        </div>
+      )}
+      
+      {/* Error overlay */}
+      {error && (
+        <div className="fixed inset-0 bg-white bg-opacity-90 flex items-center justify-center z-50">
+          <div className="max-w-md mx-auto bg-red-50 border border-red-200 rounded-lg p-6">
+            <div className="flex items-center mb-3">
+              <div className="text-red-500 text-xl mr-3">⚠️</div>
+              <h3 className="text-red-800 font-semibold">Error</h3>
+            </div>
+            <p className="text-red-700">{error}</p>
+          </div>
+        </div>
+      )}
+      
       <div className="bg-white rounded-xl shadow-lg p-6 max-w-4xl w-full">
         <div className="flex flex-col lg:flex-row items-center justify-center gap-6">
           <div className="relative">
