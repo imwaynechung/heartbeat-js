@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Heartbeat } from '../../heartbeat.js';
-import { loadOpenCv } from '../utils/opencvLoader.js';
+import { loadOpenCv, OPENCV_URI } from '../utils/opencvLoader.js';
 
 const HAARCASCADE_URI = "haarcascade_frontalface_alt.xml";
 
@@ -18,7 +18,7 @@ function HeartbeatMonitor() {
         setLoading(true);
         setError(null);
         console.log("Attempting to load OpenCV...");
-        await loadOpenCv(HAARCASCADE_URI); // HAARCASCADE_URI is passed here, but loadOpenCv expects OPENCV_URI
+        await loadOpenCv(OPENCV_URI);
         console.log("OpenCV loaded successfully.");
 
         if (webcamRef.current && canvasRef.current) {
