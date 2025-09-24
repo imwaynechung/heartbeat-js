@@ -9,6 +9,7 @@ function HeartbeatMonitor() {
   const canvasRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [bpm, setBpm] = useState('--');
 
   useEffect(() => {
     let heartbeatInstance = null;
@@ -23,13 +24,19 @@ function HeartbeatMonitor() {
 
         if (webcamRef.current && canvasRef.current) {
           console.log("Initializing Heartbeat instance...");
+          // Callback function to update BPM in the UI
+          const onBpmUpdate = (calculatedBpm) => {
+            setBpm(Math.round(calculatedBpm));
+          };
+          
           heartbeatInstance = new Heartbeat(
             webcamRef.current,
             canvasRef.current,
             HAARCASCADE_URI,
             30, // targetFps
-            6,  // windowSize
-            250 // rppgInterval
+            10, // windowSize (10 seconds)
+            250, // rppgInterval
+            onBpmUpdate // callback for BPM updates
           );
           await heartbeatInstance.init();
           console.log("Heartbeat demo initialized successfully!");
@@ -101,7 +108,7 @@ function HeartbeatMonitor() {
           <div className="flex flex-col items-center space-y-4">
             <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white p-6 rounded-xl shadow-lg text-center min-w-[200px]">
               <div className="text-sm font-medium opacity-90 mb-1">Heart Rate</div>
-              <div className="text-3xl font-bold" id="bpm-display">-- BPM</div>
+              <div className="text-3xl font-bold" id="bpm-display">{bpm} BPM</div>
               <div className="text-xs opacity-75 mt-1">Beats per minute</div>
             </div>
             
@@ -111,7 +118,7 @@ function HeartbeatMonitor() {
                 <span>Monitoring active</span>
               </div>
               <p className="text-xs text-gray-500 max-w-xs">
-                Position your face in the frame and stay still for accurate readings
+                Position your face in the frame and stay still. First reading after 10 seconds.
               </p>
             </div>
           </div>

@@ -13,7 +13,7 @@ const MIN_DISTANCE = 10;
 // Simple rPPG implementation in JavaScript
 // - Code could be improved given better documentation available for opencv.js
 export class Heartbeat {
-  constructor(webcamVideoElement, canvasElement, classifierPath, targetFps, windowSize, rppgInterval) {
+  constructor(webcamVideoElement, canvasElement, classifierPath, targetFps, windowSize, rppgInterval, onBpmUpdate) {
     this.webcamVideoElement = webcamVideoElement;
     this.canvasElement = canvasElement;
     this.classifierPath = classifierPath;
@@ -22,6 +22,7 @@ export class Heartbeat {
     this.targetFps = targetFps;
     this.windowSize = windowSize;
     this.rppgInterval = rppgInterval;
+    this.onBpmUpdate = onBpmUpdate;
   }
   // Start the video stream
   async startStreaming() {
@@ -346,6 +347,10 @@ export class Heartbeat {
         // Infer BPM
         let bpm = result.maxLoc.y * fps / signal.rows * SEC_PER_MIN;
         console.log(bpm);
+        // Update BPM in UI if callback is provided
+        if (this.onBpmUpdate && typeof this.onBpmUpdate === 'function') {
+          this.onBpmUpdate(bpm);
+        }
         // Draw BPM
         this.drawBPM(bpm);
       }
