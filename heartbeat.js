@@ -13,9 +13,9 @@ const MIN_DISTANCE = 10;
 // Simple rPPG implementation in JavaScript
 // - Code could be improved given better documentation available for opencv.js
 export class Heartbeat {
-  constructor(webcamId, canvasId, classifierPath, targetFps, windowSize, rppgInterval) {
-    this.webcamId = webcamId;
-    this.canvasId = canvasId,
+  constructor(webcamVideoElement, canvasElement, classifierPath, targetFps, windowSize, rppgInterval) {
+    this.webcamVideoElement = webcamVideoElement;
+    this.canvasElement = canvasElement;
     this.classifierPath = classifierPath;
     this.streaming = false;
     this.faceValid = false;
@@ -29,17 +29,17 @@ export class Heartbeat {
     try {
       console.log("Requesting user media with constraints:", {
         video: {
-          facingMode: 'user',
-          width: {exact: this.webcamVideoElement.width},
-          height: {exact: this.webcamVideoElement.height}
+          facingMode: 'user', // Prefer front camera
+          width: { ideal: 640 }, // Ideal width
+          height: { ideal: 480 } // Ideal height
         },
         audio: false
       });
       this.stream = await navigator.mediaDevices.getUserMedia({
         video: {
-          facingMode: 'user',
-          width: {exact: this.webcamVideoElement.width},
-          height: {exact: this.webcamVideoElement.height}
+          facingMode: 'user', // Prefer front camera
+          width: { ideal: 640 }, // Ideal width
+          height: { ideal: 480 } // Ideal height
         },
         audio: false
       });
@@ -93,12 +93,9 @@ export class Heartbeat {
   // Initialise the demo
   async init() {
     console.log("Initializing Heartbeat demo...");
-    this.webcamVideoElement = document.getElementById(this.webcamId);
-    console.log("Webcam video element:", this.webcamVideoElement);
-    
     if (!this.webcamVideoElement) {
-      console.error("Could not find webcam video element with ID:", this.webcamId);
-      throw new Error(`Video element with ID '${this.webcamId}' not found`);
+      console.error("Webcam video element not provided.");
+      throw new Error(`Webcam video element not provided.`);
     }
     
     try {
@@ -107,8 +104,8 @@ export class Heartbeat {
       console.log("Video streaming started successfully");
       
       console.log("Video dimensions:", this.webcamVideoElement.videoWidth, "x", this.webcamVideoElement.videoHeight);
-      this.webcamVideoElement.width = this.webcamVideoElement.videoWidth;
-      this.webcamVideoElement.height = this.webcamVideoElement.videoHeight;
+      this.canvasElement.width = this.webcamVideoElement.videoWidth;
+      this.canvasElement.height = this.webcamVideoElement.videoHeight;
       
       console.log("Creating OpenCV matrices...");
       this.frameRGB = new cv.Mat(this.webcamVideoElement.height, this.webcamVideoElement.width, cv.CV_8UC4);
@@ -200,7 +197,7 @@ export class Heartbeat {
         [0, 255, 0, 255]);
       // Apply overlayMask
       this.frameRGB.setTo([255, 0, 0, 255], this.overlayMask);
-      cv.imshow(this.canvasId, this.frameRGB);
+      cv.imshow(this.canvasElement, this.frameRGB);
     } catch (e) {
       console.log("Error capturing frame:");
       console.log(e);
