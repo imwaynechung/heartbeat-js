@@ -1,0 +1,14 @@
+{
+  "name": "heartbeat-js",
+  "version": "1.0.0",
+  "description": "Video-based pulse rate monitoring in JavaScript",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "dev": "python -m http.server 8000"
+  },
+  "keywords": ["rppg", "heart-rate", "opencv", "javascript"],
+  "author": "",
+  "license": "GPL-3.0"
+}
