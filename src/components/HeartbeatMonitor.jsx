@@ -137,3 +137,6 @@ function HeartbeatMonitor() {
     </div>
   );
 }
+
+
+export default HeartbeatMonitor
