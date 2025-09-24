@@ -25,7 +25,16 @@ export class Heartbeat {
   }
   // Start the video stream
   async startStreaming() {
+    console.log("Starting video stream...");
     try {
+      console.log("Requesting user media with constraints:", {
+        video: {
+          facingMode: 'user',
+          width: {exact: this.webcamVideoElement.width},
+          height: {exact: this.webcamVideoElement.height}
+        },
+        audio: false
+      });
       this.stream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: 'user',
@@ -34,26 +43,33 @@ export class Heartbeat {
         },
         audio: false
       });
+      console.log("User media stream obtained successfully");
     } catch (e) {
-      console.log(e);
+      console.error("Failed to get user media:", e);
+      throw e;
     }
     if (!this.stream) {
+      console.error("Stream is null after getUserMedia");
       throw new Error('Could not obtain video from webcam.');
     }
     // Set srcObject to the obtained stream
+    console.log("Setting video source and starting playback...");
     this.webcamVideoElement.srcObject = this.stream;
     // Start the webcam video stream
     this.webcamVideoElement.play();
     this.streaming = true;
+    console.log("Video element play() called, waiting for canplay event...");
     return new Promise(resolve => {
       // Add event listener to make sure the webcam has been fully initialized.
       this.webcamVideoElement.oncanplay = () => {
+        console.log("Video can play - stream ready!");
         resolve();
       };
     });
   }
   // Create file from url
   async createFileFromUrl(path, url) {
+    console.log("Downloading file from URL:", url, "to path:", path);
     let request = new XMLHttpRequest();
     request.open('GET', url, true);
     request.responseType = 'arraybuffer';
@@ -62,11 +78,13 @@ export class Heartbeat {
       request.onload = () => {
         if (request.readyState === 4) {
           if (request.status === 200) {
+            console.log("File downloaded successfully, creating data file...");
             let data = new Uint8Array(request.response);
             cv.FS_createDataFile('/', path, data, true, false, false);
+            console.log("Data file created successfully");
             resolve();
           } else {
-            console.log('Failed to load ' + url + ' status: ' + request.status);
+            console.error('Failed to load ' + url + ' status: ' + request.status);
           }
         }
       };
@@ -74,33 +92,61 @@ export class Heartbeat {
   }
   // Initialise the demo
   async init() {
+    console.log("Initializing Heartbeat demo...");
     this.webcamVideoElement = document.getElementById(this.webcamId);
+    console.log("Webcam video element:", this.webcamVideoElement);
+    
+    if (!this.webcamVideoElement) {
+      console.error("Could not find webcam video element with ID:", this.webcamId);
+      throw new Error(`Video element with ID '${this.webcamId}' not found`);
+    }
+    
     try {
+      console.log("Starting video streaming...");
       await this.startStreaming();
+      console.log("Video streaming started successfully");
+      
+      console.log("Video dimensions:", this.webcamVideoElement.videoWidth, "x", this.webcamVideoElement.videoHeight);
       this.webcamVideoElement.width = this.webcamVideoElement.videoWidth;
       this.webcamVideoElement.height = this.webcamVideoElement.videoHeight;
+      
+      console.log("Creating OpenCV matrices...");
       this.frameRGB = new cv.Mat(this.webcamVideoElement.height, this.webcamVideoElement.width, cv.CV_8UC4);
       this.lastFrameGray = new cv.Mat(this.webcamVideoElement.height, this.webcamVideoElement.width, cv.CV_8UC1);
       this.frameGray = new cv.Mat(this.webcamVideoElement.height, this.webcamVideoElement.width, cv.CV_8UC1);
       this.overlayMask = new cv.Mat(this.webcamVideoElement.height, this.webcamVideoElement.width, cv.CV_8UC1);
       this.cap = new cv.VideoCapture(this.webcamVideoElement);
+      console.log("OpenCV matrices created successfully");
+      
       // Set variables
+      console.log("Initializing signal processing variables...");
       this.signal = []; // 120 x 3 raw rgb values
       this.timestamps = []; // 120 x 1 timestamps
       this.rescan = []; // 120 x 1 rescan bool
       this.face = new cv.Rect();  // Position of the face
+      
       // Load face detector
+      console.log("Loading face cascade classifier...");
       this.classifier = new cv.CascadeClassifier();
       let faceCascadeFile = "haarcascade_frontalface_alt.xml";
       if (!this.classifier.load(faceCascadeFile)) {
+        console.log("Face cascade not found locally, downloading from:", this.classifierPath);
         await this.createFileFromUrl(faceCascadeFile, this.classifierPath);
-        this.classifier.load(faceCascadeFile)
+        if (!this.classifier.load(faceCascadeFile)) {
+          console.error("Failed to load face cascade after download");
+          throw new Error("Could not load face cascade classifier");
+        }
       }
+      console.log("Face cascade classifier loaded successfully");
+      
+      console.log("Starting processing timers...");
       this.scanTimer = setInterval(this.processFrame.bind(this),
         MSEC_PER_SEC/this.targetFps);
       this.rppgTimer = setInterval(this.rppg.bind(this), this.rppgInterval);
+      console.log("Heartbeat demo initialization completed!");
     } catch (e) {
-      console.log(e);
+      console.error("Error during initialization:", e);
+      throw e;
     }
   }
   // Add one frame to raw signal
